@@ -1,5 +1,4 @@
-﻿using GenericHostConsoleApp.InjectableServices;
-using Microsoft.Extensions.Configuration;
+﻿using Coravel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -8,7 +7,7 @@ namespace GenericHostConsoleApp
 {
     public class Program
     {
-        static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
                   // 최소 지정 로그 레벨 : Info 레벨 이상 로그를 기록한다는 의미
@@ -19,38 +18,47 @@ namespace GenericHostConsoleApp
                   .WriteTo.File(@".\log\log.txt", rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true)
                   .CreateLogger();
 
+            try
+            {
+                Log.Information("Starting service..");
 
-            IHost host = Host.CreateDefaultBuilder(args)
+                var host = CreateHostBuilder(args).Build();
+                host.Services.UseScheduler(scheduler =>
+                {
+                    var jobSchedule = scheduler.Schedule<MyFirstJob>();
+                    jobSchedule
+                        .EverySeconds(2)
+                        .PreventOverlapping("MyFirstJob");
+                });
+
+                host.Run();
+            }
+            catch (System.Exception ex)
+            {
+                Log.Fatal(ex, "Exception in application");
+            }
+            finally
+            {
+                Log.Information("Exiting service");
+                Log.CloseAndFlush();
+            }
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .UseSerilog()
                 .ConfigureServices((hostContext, services) =>
                 {
+
+                    services.AddScheduler();
+                    services.AddTransient<MyFirstJob>();
+
                     services.AddHostedService<WorkService>();
-                    services.Scan(scan => scan
-                                        .FromAssemblyOf<ITransientService>()
-                                        .AddClasses(classes => classes.AssignableTo<ITransientService>())
-                                        .AsSelfWithInterfaces()
-                                        .WithTransientLifetime()
-                                        .AddClasses(classes => classes.AssignableTo<IScopedService>())
-                                        .AsSelfWithInterfaces()
-                                        .WithScopedLifetime()
-                                        .AddClasses(classes => classes.AssignableTo<ISingletonSerivce>())
-                                        .AsSelfWithInterfaces()
-                                        .WithSingletonLifetime()
-                    );
-                })
-                .ConfigureAppConfiguration((hostingContext, configuration) =>
-                {
-                    configuration.Sources.Clear();
-                    IHostEnvironment env = hostingContext.HostingEnvironment;
+                    services.AddHostedService<BackgroundWorkerService>();
+                });
 
-                    configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-                })
-                .UseConsoleLifetime()
-                .UseSerilog()
-                .Build();
-
-            await host.RunAsync();
-
-            Log.CloseAndFlush();
         }
-    }
+       
+    }   
 }
