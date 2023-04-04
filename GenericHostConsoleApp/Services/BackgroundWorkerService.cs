@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -30,17 +31,11 @@ namespace GenericHostConsoleApp
 
                 count++;
 
-                if (count > 20)
-                {
+                if (count > 5)
+                {                   
                     _applicationLifetime.StopApplication();
                 }
             }
-        }
-
-        public override Task StopAsync(CancellationToken cancellationToken)
-        {
-            _logger.LogInformation("StopAsync");
-            return Task.CompletedTask;
         }
     }
 }

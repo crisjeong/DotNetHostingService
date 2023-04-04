@@ -20,6 +20,7 @@ namespace GenericHostConsoleApp
         {
             _logger = logger;
             _configuration = configuration;
+
             applicationLifetime.ApplicationStarted.Register(OnStarted);
             applicationLifetime.ApplicationStopping.Register(OnStopping);
             applicationLifetime.ApplicationStopped.Register(OnStopped);

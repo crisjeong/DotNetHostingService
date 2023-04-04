@@ -25,10 +25,9 @@ namespace GenericHostConsoleApp
                 var host = CreateHostBuilder(args).Build();
                 host.Services.UseScheduler(scheduler =>
                 {
-                    var jobSchedule = scheduler.Schedule<MyFirstJob>();
-                    jobSchedule
+                    scheduler.Schedule<MyCorabelService>()
                         .EverySeconds(2)                        
-                        .PreventOverlapping("MyFirstJob");
+                        .PreventOverlapping("MyCorabelService");
                 });
 
                 host.Run();
@@ -52,9 +51,9 @@ namespace GenericHostConsoleApp
                 {
 
                     services.AddScheduler();
-                    services.AddTransient<MyFirstJob>();
+                    services.AddTransient<MyCorabelService>();
 
-                    services.AddHostedService<WorkService>();
+                    //services.AddHostedService<WorkService>();
                     services.AddHostedService<BackgroundWorkerService>();
                 });
 
