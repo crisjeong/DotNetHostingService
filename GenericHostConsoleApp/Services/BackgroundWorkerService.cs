@@ -25,12 +25,12 @@ namespace GenericHostConsoleApp
             var count = 1;
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation($"BackgroundWorkerService running at: {DateTimeOffset.Now}");
+                //_logger.LogInformation($"BackgroundWorkerService running at: {DateTimeOffset.Now}");
                 await Task.Delay(1000, stoppingToken);
 
                 count++;
 
-                if (count > 10)
+                if (count > 20)
                 {
                     _applicationLifetime.StopApplication();
                 }

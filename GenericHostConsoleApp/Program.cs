@@ -27,7 +27,7 @@ namespace GenericHostConsoleApp
                 {
                     var jobSchedule = scheduler.Schedule<MyFirstJob>();
                     jobSchedule
-                        .EverySeconds(2)
+                        .EverySeconds(2)                        
                         .PreventOverlapping("MyFirstJob");
                 });
 
