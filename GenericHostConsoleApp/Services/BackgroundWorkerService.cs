@@ -38,7 +38,7 @@ namespace GenericHostConsoleApp
 
                 if (count > 5)
                 {                   
-                    _applicationLifetime.StopApplication();
+                    //_applicationLifetime.StopApplication();
                 }
             }
         }

@@ -1,4 +1,5 @@
 ﻿using Coravel;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -23,14 +24,15 @@ namespace GenericHostConsoleApp
                 Log.Information("Starting service..");
 
                 var host = CreateHostBuilder(args).Build();
+
                 host.Services.UseScheduler(scheduler =>
                 {
-                    scheduler.Schedule<MyCorabelService>()
-                        .EverySeconds(2)                        
-                        .PreventOverlapping("MyCorabelService");
+                    //scheduler.Schedule<MyCorabelService>()
+                    //    .EverySeconds(2)                        
+                    //    .PreventOverlapping("MyCorabelService");
                 });
 
-                host.Run();
+                host.Run();              
             }
             catch (System.Exception ex)
             {
@@ -45,8 +47,7 @@ namespace GenericHostConsoleApp
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            return Host.CreateDefaultBuilder(args)
-                .UseSerilog()
+            return Host.CreateDefaultBuilder(args)                               
                 .ConfigureServices((hostContext, services) =>
                 {
 
@@ -55,8 +56,17 @@ namespace GenericHostConsoleApp
 
                     //services.AddHostedService<WorkService>();
                     services.AddHostedService<BackgroundWorkerService>();
-                });
-
+                })
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>().ConfigureLogging(logging =>
+                    {
+                        logging.AddConsole();
+                        logging.AddDebug();
+                    });
+                })
+                .UseConsoleLifetime()
+                .UseSerilog();
         }
        
     }   

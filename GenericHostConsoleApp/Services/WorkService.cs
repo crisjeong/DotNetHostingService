@@ -54,6 +54,6 @@ namespace GenericHostConsoleApp
         private void OnStopped()
         {
             _logger.LogInformation("5.OnStopped");
-        }
+        }     
     }
 }
